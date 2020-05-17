@@ -8,6 +8,7 @@ import { Player } from "./player";
 import { Orc } from "./orc";
 import { HpCounter } from "./hpCounter";
 import { LootWindow } from "./lootWindow";
+import { SpawnTimeOut } from "../components/spawnTimer";
 
 const soundbox2 = new SoundBox(new Transform({position: new Vector3(7,0,8)}), resources.sounds.evillaugh)
 const soundbox3 = new SoundBox(new Transform({position: new Vector3(7, 0, 8) }), resources.sounds.playerHit2)
@@ -144,6 +145,7 @@ export class OrcBattle {
               this._clicked = false;
 
               if(this._npc.hp == 0) {
+                this._npc.addComponentOrReplace(new SpawnTimeOut(90)); 
                 this._npc.addComponentOrReplace(
                   new OnPointerDown(
                      e => {
@@ -200,8 +202,6 @@ export class OrcBattle {
           }  
        
       } else if (dist < 20 && dist > 8) {
-
-        
         
         //log('less than 20, more than 8')
         if(!this.dead) {
@@ -255,8 +255,6 @@ export class OrcBattle {
         
         
       } else {
-        
-
           if(!this.dead) {
             this._orcGruntHpBar.hide()
             this._npc.hidehpbar()
@@ -271,6 +269,26 @@ export class OrcBattle {
               })
             );
             this._idle.play()
+
+          } else if(!this._npc.hasComponent(SpawnTimeOut)) {
+            this._death.stop()
+            this.dead = false;
+            this._npc.resethealthbar(this.canvas)
+            this._npc.addComponentOrReplace(
+              new OnPointerDown(
+                 e => {
+                   this._npc.getComponent(OnPointerDown).showFeedback = false;
+                   if(!this._npc.hasComponent(SecondaryTimeOut)) {
+                     this._clicked = true;
+                     //log('this._clicked ', this._clicked)
+                   }
+                 },{
+                   button: ActionButton.PRIMARY,
+                   showFeedback: true,
+                   hoverText: "Punch" 
+                 }
+             )
+           )  
           }
       }
     }

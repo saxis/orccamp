@@ -124,7 +124,7 @@ const orcgrunt1 = new Orc(
 const orcgrunt3 = new Orc(
   resources.sounds.peasantunlock,
   resources.models.orcgrunt,
-  7,
+  6,
   new Vector3(8, 0, 7),
   Quaternion.Euler(-180, 60, -180),
   gameCanvas
