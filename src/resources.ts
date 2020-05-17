@@ -46,6 +46,8 @@ export default {
         playContainer: new Texture("src/images/UI-atlas.png"),
         hpCounter: new Texture("src/images/OldManDialog2.png"),
         orcGruntHpBar: new Texture("src/images/OrcGruntHPBar.png"),
-        playerCounter: new Texture("src/images/player.png")
+        playerCounter: new Texture("src/images/player.png"),
+        lootWindow: new Texture("src/images/LootWindow.png"),
+        closeicon: new Texture("src/images/close_icon1.png")
       }
 }

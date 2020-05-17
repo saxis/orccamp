@@ -4,9 +4,10 @@ import { SecondaryTimeOut } from "../components/secondaryTimeOut"
 import { SoundBox } from "../components/soundbox";
 import resources from "../resources";
 import { Player } from "./player";
-import { PeasantDialog, SecondDialog } from "../ui/index";
+//import { PeasantDialog, SecondDialog } from "../ui/index";
 import { Orc } from "./orc";
 import { HpCounter } from "./hpCounter";
+import { LootWindow } from "./lootWindow";
 
 const soundbox2 = new SoundBox(new Transform({position: new Vector3(7,0,8)}), resources.sounds.evillaugh)
 const soundbox3 = new SoundBox(new Transform({position: new Vector3(7, 0, 8) }), resources.sounds.playerHit2)
@@ -37,6 +38,8 @@ export class OrcBattle {
     private _punchpause: number = 2
     private _pacified: boolean = false;
     private _orcGruntHpBar: HpCounter;
+    private _lootWindow: LootWindow;
+    private canvas;
 
     public endFight: () => void;
 
@@ -55,8 +58,10 @@ export class OrcBattle {
         this._death2 = this._npc.death2
         this._clicked = clicked;
         this._battlepause = battlepause;
+        this.canvas = canvas;
         //this._dialog = dialog
         this._orcGruntHpBar = new HpCounter(canvas,resources.textures.orcGruntHpBar,'npc')
+        this._lootWindow = new LootWindow(canvas, resources.textures.lootWindow)
         this._npc.resethealthbar(canvas)
 
         this._npc.addComponentOrReplace(
@@ -139,6 +144,33 @@ export class OrcBattle {
               this._clicked = false;
 
               if(this._npc.hp == 0) {
+                this._npc.addComponentOrReplace(
+                  new OnPointerDown(
+                     e => {
+                      this._lootWindow.show()
+                      this._npc.loadloot()
+                      let close = new UIImage(this.canvas, resources.textures.closeicon)
+                      close.name = "clickable-image"
+                      close.width = "30px"
+                      close.height = "30px"
+                      close.sourceWidth = 512
+                      close.sourceHeight = 512
+                      close.vAlign = "center"
+                      close.positionY = 250;
+                      close.positionX = 60;
+                      close.isPointerBlocker = true
+                      close.onClick = new OnClick(() => {
+                        this._lootWindow.hide()
+                        this._npc.hideloot()
+                        close.visible = false;
+                      })
+                     },{
+                       button: ActionButton.PRIMARY,
+                       showFeedback: true,
+                       hoverText: "Loot Corpse" 
+                     }
+                 )
+                )
                 this.dead = true;
                 this._npc.battle = false;
                 this._fight.stop()
@@ -168,6 +200,8 @@ export class OrcBattle {
           }  
        
       } else if (dist < 20 && dist > 8) {
+
+        
         
         //log('less than 20, more than 8')
         if(!this.dead) {
@@ -221,6 +255,8 @@ export class OrcBattle {
         
         
       } else {
+        
+
           if(!this.dead) {
             this._orcGruntHpBar.hide()
             this._npc.hidehpbar()
