@@ -1,6 +1,7 @@
 import resources from "../resources";
 
 export class Orc extends Entity {
+  private _id: string;
   private _hp: number;
   private _battle: boolean = false;
   private _startinghp: number;
@@ -15,12 +16,15 @@ export class Orc extends Entity {
   public death2: AnimationState;
   private healthBar: UIText;
   private npcName: UIText;
+  private npcLevel: UIText;
   private loot: UIText;
   private loot2: UIText;
   private loot3: UIText;
   private close: UIImage;
+  private npcUrl = "http://localhost:3000/npc";
 
   constructor(
+    id:string,
     sound: AudioClip,
     model: GLTFShape,
     startingHp: number,
@@ -38,6 +42,7 @@ export class Orc extends Entity {
       })
     );
     this.addComponent(new AudioSource(sound));
+    this._id = id;
     this._hp = startingHp;
     this._startinghp = startingHp;
     let npcAnimator = new Animator();
@@ -60,22 +65,6 @@ export class Orc extends Entity {
     npcAnimator.addClip(this.death1);
     this.death2 = new AnimationState("death2");
     npcAnimator.addClip(this.death2);
-    // this.healthBar = new UIText(canvas)
-    // this.healthBar.hAlign = "left";
-    // this.healthBar.vAlign = "center";
-    // this.healthBar.hTextAlign = "left";
-    // this.healthBar.vTextAlign = "center";
-    // this.healthBar.width = "100%";
-    // this.healthBar.height = "100%";
-    // this.healthBar.value = ((startingHp/startingHp)*100).toString() + '%';
-    // this.healthBar.positionY = 180;
-    // this.healthBar.positionX = 100;
-    // this.healthBar.fontSize = 14;
-    // this.healthBar.outlineWidth = 0.4;
-    // this.healthBar.textWrapping = true;
-    // this.healthBar.fontWeight = "bold";
-    // this.healthBar.isPointerBlocker = false;
-    // this.healthBar.visible = false;
   }
 
   public playAudio() {
@@ -117,6 +106,27 @@ export class Orc extends Entity {
     this.npcName.fontWeight = "bold";
     this.npcName.isPointerBlocker = false;
     this.npcName.visible = false;
+
+    this.npcLevel = new UIText(canvas);
+    this.npcLevel.vAlign = "center";
+    this.npcLevel.hTextAlign = "left";
+    this.npcLevel.vTextAlign = "center";
+    this.npcLevel.width = "100%";
+    this.npcLevel.height = "100%";
+    if (this._startinghp > 10 && this._startinghp < 20) {
+      this.npcLevel.value = "2";
+    } else {
+      this.npcLevel.value = "1";
+    }
+    
+    this.npcLevel.positionY = 165;
+    this.npcLevel.positionX = 40;
+    this.npcLevel.fontSize = 14;
+    this.npcLevel.outlineWidth = 0.4;
+    this.npcLevel.textWrapping = true;
+    this.npcLevel.fontWeight = "bold";
+    this.npcLevel.isPointerBlocker = false;
+    this.npcLevel.visible = false;
 
     this.loot = new UIText(canvas);
     this.loot.vAlign = "center";
@@ -174,11 +184,6 @@ export class Orc extends Entity {
     this.close.positionY = 250;
     this.close.positionX = 60;
     this.close.isPointerBlocker = true;
-    // this.close.onClick = new OnClick(() => {
-    //   log("clicked on the close image")
-    //   canvas.visible = false
-    //   canvas.isPointerBlocker = false
-    // })
     this.close.visible = false;
   }
 
@@ -188,6 +193,10 @@ export class Orc extends Entity {
 
   set battle(val: boolean) {
     this._battle = val;
+  }
+
+  get id() {
+    return this._id;
   }
 
   get hp() {
@@ -217,23 +226,87 @@ export class Orc extends Entity {
   showhpbar() {
     this.healthBar.visible = true;
     this.npcName.visible = true;
+    this.npcLevel.visible = true;
   }
 
   hidehpbar() {
     this.healthBar.visible = false;
     this.npcName.visible = false;
+    this.npcLevel.visible = false;
   }
+
+  // heal(amount: number) {
+  //   this.hp += amount;
+  //   this.healthBar.value =
+  //     ((this.hp / this._startinghp) * 100).toFixed(0).toString() + "%";
+  // }
+
+  // takedamage(amount: number) {
+  //   this.hp -= amount;
+  //   this.healthBar.value =
+  //     ((this.hp / this._startinghp) * 100).toFixed(0).toString() + "%";
+  //   log("orc healthbar value should be showing: ", this.healthBar.value);
+  // }
 
   heal(amount: number) {
-    this.hp += amount;
-    this.healthBar.value =
-      ((this.hp / this._startinghp) * 100).toFixed(0).toString() + "%";
+    let url = this.npcUrl + '/' + this._id;
+
+    executeTask(async () => {
+      const hpo = {
+        amount : amount
+      };
+
+      const options = {
+        method: "PATCH",
+        body: JSON.stringify(hpo),
+        headers: {
+          "Content-Type": "application/json",
+        },
+      };
+
+      try {
+        fetch(url, options)
+        .then((res) => res.json())
+        .then((res) => {
+          this.hp = res.hp
+          this.healthBar.value = res.percentage + '%'
+        })
+      } catch(error) {
+        log ('failed to heal ', error)
+      }
+      
+    })
   }
 
-  takedamage(amount: number) {
-    this.hp -= amount;
-    this.healthBar.value =
-      ((this.hp / this._startinghp) * 100).toFixed(0).toString() + "%";
-    log("orc healthbar value should be showing: ", this.healthBar.value);
+  takedamage(amount:number) {
+    let url = this.npcUrl + '/' + this._id
+    log('calling npc url ', url);
+
+    executeTask(async () => {
+      const hpo = {
+        amount : -amount
+      };
+
+      const options = {
+        method: "PATCH",
+        body: JSON.stringify(hpo),
+        headers: {
+          "Content-Type": "application/json",
+        },
+      };
+
+      try {
+        fetch(url, options)
+          .then((res) => res)
+          .then((res) => res.json())
+          .then((res) => {
+            this.hp = res.hp
+            log('setting healthbar value to ', res.percentage)
+            this.healthBar.value = res.percentage + '%'
+          })
+      } catch(error) {
+        log('failed to take npc damage ', error)
+      }
+    })
   }
 }

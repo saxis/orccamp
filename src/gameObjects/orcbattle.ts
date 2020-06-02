@@ -10,7 +10,7 @@ import { HpCounter } from "./hpCounter";
 import { LootWindow } from "./lootWindow";
 import { SpawnTimeOut } from "../components/spawnTimer";
 
-const soundbox2 = new SoundBox(new Transform({position: new Vector3(7,0,8)}), resources.sounds.evillaugh)
+//const soundbox2 = new SoundBox(new Transform({position: new Vector3(7,0,8)}), resources.sounds.evillaugh)
 const soundbox3 = new SoundBox(new Transform({position: new Vector3(7, 0, 8) }), resources.sounds.playerHit2)
 const soundbox4 = new SoundBox(new Transform({position: new Vector3(7,0,8)}), resources.sounds.playerHit)
 const killbox = new SoundBox(new Transform({position: new Vector3(7,0,8)}), resources.sounds.killping)
@@ -19,8 +19,9 @@ const orclaugh = new SoundBox(new Transform({position: new Vector3(7,0,8)}), res
 
 export class OrcBattle {
     private _player: Player;
-    private _npc: Orc;
+    private _npc: Orc
     private _startPos: Vector3;
+    private _startRot: Quaternion;
     //private _turntime: number;
     private _walk: AnimationState;
     private _turn: AnimationState;
@@ -44,10 +45,11 @@ export class OrcBattle {
 
     public endFight: () => void;
 
-    constructor(canvas, player: Player, npc: Orc, startPos:Vector3,  clicked:boolean, battlepause:number ) {
+    constructor(canvas, player: Player, npc: Orc, startPos:Vector3, startRot:Quaternion,  clicked:boolean, battlepause:number ) {
         this._player = player;
         this._npc = npc;
         this._startPos = startPos;
+        this._startRot = startRot;
         this._walk = this._npc.walk;
         this._turn = this._npc.turnAround 
         this._fight = this._npc.boxing;
@@ -65,13 +67,16 @@ export class OrcBattle {
         this._lootWindow = new LootWindow(canvas, resources.textures.lootWindow)
         this._npc.resethealthbar(canvas)
 
+        if (this._npc.hp == 0) {
+          this.dead = true;
+        }
+
         this._npc.addComponentOrReplace(
             new OnPointerDown(
                e => {
                  this._npc.getComponent(OnPointerDown).showFeedback = false;
                  if(!this._npc.hasComponent(SecondaryTimeOut)) {
                    this._clicked = true;
-                   //log('this._clicked ', this._clicked)
                  }
                },{
                  button: ActionButton.PRIMARY,
@@ -90,6 +95,18 @@ export class OrcBattle {
         let playerPos = new Vector3(camera.position.x, 0, camera.position.z);
         transform.lookAt(playerPos);
         //if(this._npc.battle){
+          if(this.dead == false && this._npc.battle == false) {
+            log(`npc battle: ${this._npc.battle}`)
+            log('setting npc battle to true')
+            this._npc.battle = true;
+
+            //let aggarray = []
+            //aggarray = this._player.aggro
+            //if(aggarray.indexOf(this._npc.id) == -1) {
+            log(`adding ${this._npc.id}  to the players aggro list`)
+            this._player.updateaggro("add",this._npc.id)
+            //}
+          }
           
           if (!this.dead && !this._clicked) {
             //log('in the block not dead and not clicked')
@@ -121,6 +138,13 @@ export class OrcBattle {
                 this.dead = true;
                 this._npc.battle = false;
                 //this._dialog.npcWon()
+                this._npc.addComponentOrReplace(
+                  new Transform({
+                    position: this._startPos,
+                    rotation: this._startRot
+                  })
+                );
+                this._idle.play()
               }
               this._npc.addComponentOrReplace(new TimeOut(this._battlepause)); 
             } 
@@ -173,6 +197,14 @@ export class OrcBattle {
                      }
                  )
                 )
+                let aggarray = []
+                aggarray = this._player.aggro
+                if (aggarray != undefined && aggarray.length > 0) {
+                  if(aggarray.indexOf(this._npc.id) > -1) {
+                    log('removing from aggrolist: ', this._npc.id)
+                    this._player.updateaggro("remove",this._npc.id)
+                  }
+                }
                 this.dead = true;
                 this._npc.battle = false;
                 this._fight.stop()
@@ -195,7 +227,6 @@ export class OrcBattle {
 
                 this._orcGruntHpBar.hide()
                 this._npc.hidehpbar()
-                //this._dialog.playerWon()
               }
               this._npc.addComponentOrReplace(new SecondaryTimeOut(this._punchpause));
             }
@@ -256,16 +287,34 @@ export class OrcBattle {
         
       } else {
           if(!this.dead) {
+            let aggarray = []
+            aggarray = this._player.aggro
+            if (aggarray != undefined && aggarray.length > 0) {
+              if(aggarray.indexOf(this._npc.id) > -1) {
+                log('removing from aggrolist: ', this._npc.id)
+                this._player.updateaggro("remove",this._npc.id)
+                log('setting battle to false')
+                this._npc.battle = false;
+              }
+            } else if (aggarray != undefined && aggarray.length == 0) {
+              if (!this._npc.hasComponent(TimeOut)) {
+                if(this._player.hp < this._player.maxhp) {
+                  log(`player current hp ${this._player.hp} max hp: ${this._player.maxhp}`)
+                  this._player.heal(1)
+                  this._npc.addComponentOrReplace(new TimeOut(this._battlepause)); 
+                }
+              }
+            }
+            
             this._orcGruntHpBar.hide()
             this._npc.hidehpbar()
-
             this._fight.stop()
             this._hit.stop()
             this._walk.stop()
             this._npc.addComponentOrReplace(
               new Transform({
                 position: this._startPos,
-                rotation: Quaternion.Euler(0, -90, 0)
+                rotation: this._startRot
               })
             );
             this._idle.play()
@@ -274,13 +323,13 @@ export class OrcBattle {
             this._death.stop()
             this.dead = false;
             this._npc.resethealthbar(this.canvas)
+            this._npc.heal(2000)
             this._npc.addComponentOrReplace(
               new OnPointerDown(
                  e => {
                    this._npc.getComponent(OnPointerDown).showFeedback = false;
                    if(!this._npc.hasComponent(SecondaryTimeOut)) {
                      this._clicked = true;
-                     //log('this._clicked ', this._clicked)
                    }
                  },{
                    button: ActionButton.PRIMARY,
