@@ -12,9 +12,9 @@ new BaseScene();
 let clicked = false;
 const PUNCH_TIME = 2.2;
 
-//const apiUrl = "http://localhost:3000/player";
+//const apiUrl = "http://localhost:8080/player";
 const apiUrl = 'https://sutenquestapi.azurewebsites.net/player'
-//const npcUrl = "http://localhost:3000/npc";
+//const npcUrl = "http://localhost:8080/npc";
 const npcUrl = 'https://sutenquestapi.azurewebsites.net/npc'
 
 
@@ -51,8 +51,8 @@ function registerPlayer () {
         if (json.message == "Could not find player by address") {
           const newplayer = {
             address: lowerCaseAddress,
-            hp: 200,
-            maxhp: 200,
+            hp: 20,
+            maxhp: 20,
             percentage: 100,
             name: playerName
           };
