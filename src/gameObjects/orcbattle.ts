@@ -94,27 +94,16 @@ export class OrcBattle {
       if (dist < 8) {
         let playerPos = new Vector3(camera.position.x, 0, camera.position.z);
         transform.lookAt(playerPos);
-        //if(this._npc.battle){
           if(this.dead == false && this._npc.battle == false) {
-            log(`npc battle: ${this._npc.battle}`)
-            log('setting npc battle to true')
             this._npc.battle = true;
-
-            //let aggarray = []
-            //aggarray = this._player.aggro
-            //if(aggarray.indexOf(this._npc.id) == -1) {
-            log(`adding ${this._npc.id}  to the players aggro list`)
             this._player.updateaggro("add",this._npc.id)
-            //}
           }
           
           if (!this.dead && !this._clicked) {
-            //log('in the block not dead and not clicked')
             if(!this._npc.hasComponent(SecondaryTimeOut) && this._npc.getComponent(OnPointerDown).showFeedback === false) {
               this._npc.getComponent(OnPointerDown).showFeedback = true;
             }
             if (!this._npc.hasComponent(TimeOut)) {
-              //log('in the block not dead, not clicked, and no Timeout')
               this._walk.playing = false;
               this._turn.playing = false;
               this._hit.playing = false;
@@ -126,12 +115,10 @@ export class OrcBattle {
               } else {
                 this._kick.play()
               }
-              //this._fight.play()
+
               soundbox3.play()
               this._player.damage(1)
-              //log('player hp ', this._player.hp)
               if(this._player.hp == 0) {
-                //soundbox2.play()
                 orclaugh.play()
                 this._fight.stop()
                 this._kick.stop()
@@ -165,7 +152,9 @@ export class OrcBattle {
               }
 
               soundbox4.play()
-              this._npc.takedamage(1)
+              let nowloc = [transform.position.x,transform.position.y,transform.position.z]
+              let nowrot = [transform.rotation.x, transform.rotation.y, transform.rotation.z]
+              this._npc.takedamage(1, nowloc, nowrot)
               this._clicked = false;
 
               if(this._npc.hp == 0) {
@@ -201,7 +190,7 @@ export class OrcBattle {
                 aggarray = this._player.aggro
                 if (aggarray != undefined && aggarray.length > 0) {
                   if(aggarray.indexOf(this._npc.id) > -1) {
-                    log('removing from aggrolist: ', this._npc.id)
+                    //log('removing from aggrolist: ', this._npc.id)
                     this._player.updateaggro("remove",this._npc.id)
                   }
                 }
@@ -291,15 +280,15 @@ export class OrcBattle {
             aggarray = this._player.aggro
             if (aggarray != undefined && aggarray.length > 0) {
               if(aggarray.indexOf(this._npc.id) > -1) {
-                log('removing from aggrolist: ', this._npc.id)
+                //log('removing from aggrolist: ', this._npc.id)
                 this._player.updateaggro("remove",this._npc.id)
-                log('setting battle to false')
+                //log('setting battle to false')
                 this._npc.battle = false;
               }
             } else if (aggarray != undefined && aggarray.length == 0) {
               if (!this._npc.hasComponent(TimeOut)) {
                 if(this._player.hp < this._player.maxhp) {
-                  log(`player current hp ${this._player.hp} max hp: ${this._player.maxhp}`)
+                  //log(`player current hp ${this._player.hp} max hp: ${this._player.maxhp}`)
                   this._player.heal(1)
                   this._npc.addComponentOrReplace(new TimeOut(this._battlepause)); 
                 }

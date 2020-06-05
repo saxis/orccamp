@@ -12,8 +12,10 @@ new BaseScene();
 let clicked = false;
 const PUNCH_TIME = 2.2;
 
-const apiUrl = "http://localhost:3000/player";
-const npcUrl = "http://localhost:3000/npc";
+//const apiUrl = "http://localhost:3000/player";
+const apiUrl = 'https://sutenquestapi.azurewebsites.net/player'
+//const npcUrl = "http://localhost:3000/npc";
+const npcUrl = 'https://sutenquestapi.azurewebsites.net/npc'
 
 
 const gameCanvas = new UICanvas();

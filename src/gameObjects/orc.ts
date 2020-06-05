@@ -21,7 +21,8 @@ export class Orc extends Entity {
   private loot2: UIText;
   private loot3: UIText;
   private close: UIImage;
-  private npcUrl = "http://localhost:3000/npc";
+  //private npcUrl = "http://localhost:8080/npc";
+  private npcUrl = 'https://sutenquestapi.azurewebsites.net/npc'
 
   constructor(
     id:string,
@@ -235,19 +236,6 @@ export class Orc extends Entity {
     this.npcLevel.visible = false;
   }
 
-  // heal(amount: number) {
-  //   this.hp += amount;
-  //   this.healthBar.value =
-  //     ((this.hp / this._startinghp) * 100).toFixed(0).toString() + "%";
-  // }
-
-  // takedamage(amount: number) {
-  //   this.hp -= amount;
-  //   this.healthBar.value =
-  //     ((this.hp / this._startinghp) * 100).toFixed(0).toString() + "%";
-  //   log("orc healthbar value should be showing: ", this.healthBar.value);
-  // }
-
   heal(amount: number) {
     let url = this.npcUrl + '/' + this._id;
 
@@ -278,13 +266,14 @@ export class Orc extends Entity {
     })
   }
 
-  takedamage(amount:number) {
+  takedamage(amount:number, loc, rot) {
     let url = this.npcUrl + '/' + this._id
-    log('calling npc url ', url);
 
     executeTask(async () => {
       const hpo = {
-        amount : -amount
+        amount : -amount,
+        loc:loc,
+        rot:rot
       };
 
       const options = {
@@ -301,7 +290,7 @@ export class Orc extends Entity {
           .then((res) => res.json())
           .then((res) => {
             this.hp = res.hp
-            log('setting healthbar value to ', res.percentage)
+            //log('setting healthbar value to ', res.percentage)
             this.healthBar.value = res.percentage + '%'
           })
       } catch(error) {

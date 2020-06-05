@@ -8,8 +8,10 @@ export class Player {
   private _inbatttle: boolean;
   private healthBar: UIText;
   private _aggroList: [];
-  private apiUrl = 'http://127.0.0.1:3000/player'
-  private aggUrl = 'http://127.0.0.1:3000/aggro'
+  //private apiUrl = 'http://127.0.0.1:8080/player'
+  private apiUrl = 'https://sutenquestapi.azurewebsites.net/player'
+  //private aggUrl = 'http://127.0.0.1:8080/aggro'
+  private aggUrl = 'https://sutenquestapi.azurewebsites.net/aggro'
 
   constructor(address: string, startingHp: number, canvas) {
     this._address = address;
@@ -77,7 +79,7 @@ export class Player {
   }
 
   set battle(val:boolean) {
-    log('setting inbattle in player ts to ', val)
+    //log('setting inbattle in player ts to ', val)
     this._inbatttle = val;
   }
 
