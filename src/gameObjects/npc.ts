@@ -1,5 +1,6 @@
 export class Npc extends Entity {
   private _hp: number;
+  private _name: string;
   private _battle: boolean = false;
   private _startinghp:number;
   //private _walkClip: AnimationState
@@ -71,6 +72,14 @@ export class Npc extends Entity {
 
   public playAudio() {
     this.getComponent(AudioSource).playOnce();
+  }
+
+  get name() {
+    return this._name;
+  }
+
+  set name(val:string) {
+    this._name = val;
   }
 
   get battle() {

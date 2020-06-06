@@ -3,6 +3,7 @@ import resources from "../resources";
 export class Player {
   private _address: string;
   private _hp: number;
+  private _level: number;
   private _maxhp: number;
   private _startinghp: number;
   private _inbatttle: boolean;
@@ -12,6 +13,7 @@ export class Player {
   private apiUrl = 'https://sutenquestapi.azurewebsites.net/player'
   //private aggUrl = 'http://127.0.0.1:8080/aggro'
   private aggUrl = 'https://sutenquestapi.azurewebsites.net/aggro'
+  private levelUrl = 'https://sutenquestapi.azurewebsites.net/levels'
 
   constructor(address: string, startingHp: number, canvas) {
     this._address = address;
@@ -45,6 +47,16 @@ export class Player {
   set maxhp(val:number) {
     if (val > -1) {
       this._maxhp = val;
+    }
+  }
+
+  get level() {
+    return this._level;
+  }
+
+  set level(val:number) {
+    if (val > 0) {
+      this._level = val;
     }
   }
 
@@ -85,6 +97,39 @@ export class Player {
 
   showhpbar() {
     this.healthBar.visible = true;
+  }
+
+  achievementcheck(xp: number, currentlevel: number) {
+    let url = this.levelUrl + '/' + this.address
+    let leveledup = false;
+
+    executeTask(async () => {
+      const hpo = {
+        xp: xp
+      };
+
+      const options = {
+        method: "PATCH",
+        body: JSON.stringify(hpo),
+        headers: {
+          "Content-Type": "application/json",
+        },
+      };
+
+      try {
+        fetch(url, options)
+        .then((res) => res.json())
+        .then((res) => {
+          if(res.level > currentlevel) {
+            leveledup = true
+          }
+        })
+      } catch(error) {
+        log ('failed to update ', error)
+      }
+    })
+
+    return leveledup
   }
 
   updateaggro(action:string,mobid: string) {

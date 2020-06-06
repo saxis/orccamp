@@ -7,8 +7,9 @@ import { Player } from "./player";
 //import { PeasantDialog, SecondDialog } from "../ui/index";
 import { Orc } from "./orc";
 import { HpCounter } from "./hpCounter";
-import { LootWindow } from "./lootWindow";
+import { LootWindow } from "./lootWindow"
 import { SpawnTimeOut } from "../components/spawnTimer";
+import { CombatLog } from "./combatLog";
 
 //const soundbox2 = new SoundBox(new Transform({position: new Vector3(7,0,8)}), resources.sounds.evillaugh)
 const soundbox3 = new SoundBox(new Transform({position: new Vector3(7, 0, 8) }), resources.sounds.playerHit2)
@@ -41,6 +42,7 @@ export class OrcBattle {
     private _pacified: boolean = false;
     private _orcGruntHpBar: HpCounter;
     private _lootWindow: LootWindow;
+    private _combatLog: CombatLog;
     private canvas;
 
     public endFight: () => void;
@@ -65,6 +67,7 @@ export class OrcBattle {
         //this._dialog = dialog
         this._orcGruntHpBar = new HpCounter(canvas,resources.textures.orcGruntHpBar,'npc')
         this._lootWindow = new LootWindow(canvas, resources.textures.lootWindow)
+        this._combatLog = new CombatLog(canvas)
         this._npc.resethealthbar(canvas)
 
         if (this._npc.hp == 0) {
@@ -118,6 +121,9 @@ export class OrcBattle {
 
               soundbox3.play()
               this._player.damage(1)
+              //log(`An ${this._npc.name} hits YOU for 1 point of damage`)
+              this._combatLog.text = `An ${this._npc.name} hits YOU for 1 point of damage`
+
               if(this._player.hp == 0) {
                 orclaugh.play()
                 this._fight.stop()
@@ -155,6 +161,9 @@ export class OrcBattle {
               let nowloc = [transform.position.x,transform.position.y,transform.position.z]
               let nowrot = [transform.rotation.x, transform.rotation.y, transform.rotation.z]
               this._npc.takedamage(1, nowloc, nowrot)
+              //log(`You hit ${this._npc.name} for 1 point of damage`)
+              this._combatLog.text = `You hit ${this._npc.name} for 1 point of damage`
+
               this._clicked = false;
 
               if(this._npc.hp == 0) {
@@ -204,7 +213,18 @@ export class OrcBattle {
                 this._death.play()
                 this._death.looping = false;
 
+                //log(`You have slain an ${this._npc.name}`)
+                this._combatLog.text = `You have slain an ${this._npc.name}` 
+                //log('You have gained experience!')
+                this._combatLog.text = 'You have gained experience!' 
+
                 killbox.play()
+
+                let leveledup = this._player.achievementcheck(20,this._player.level)
+                if(leveledup) {
+                  //log(`You have reached a new level. You are now level ${this._player.level}`)
+                  this._combatLog.text = `You have reached a new level. You are now level ${this._player.level}`
+                }
 
                 if(Math.round(Math.random() * 1)){
                   this._death.play()

@@ -31,8 +31,8 @@ rect.hAlign = "right";
 rect.positionY = 180;
 rect.color = Color4.Gray();
 rect.opacity = 0.7;
-
 rect.visible = true;
+
 player.showhpbar();
  
 function registerPlayer () {
@@ -54,7 +54,9 @@ function registerPlayer () {
             hp: 20,
             maxhp: 20,
             percentage: 100,
-            name: playerName
+            name: playerName,
+            level:1,
+            currentxp:0
           };
   
           // request options
@@ -70,7 +72,13 @@ function registerPlayer () {
           log("sending post request with option to: ", apiUrl);
           fetch(apiUrl, options)
             .then((res) => res.json())
-            .then((res) => log(res));
+            .then((res) => {
+              player.level = 1
+              log(res)
+            })
+        } else {
+          log('found player ', json)
+          player.level = json.level
         }
       } catch (error) {
         log("player search by ether addresss failed");
@@ -113,7 +121,7 @@ function loadMobs() {
                 PUNCH_TIME
               )
             );
-            
+            mob.name = element.name
           });
         } catch(error) {
           throw Error("Unable to loop through json array")
