@@ -13,9 +13,9 @@ let clicked = false;
 const PUNCH_TIME = 2.2;
 
 //const apiUrl = "http://localhost:8080/player";
-const apiUrl = 'https://sutenquestapi.azurewebsites.net/player'
+const apiUrl = "https://sutenquestapi.azurewebsites.net/player"
 //const npcUrl = "http://localhost:8080/npc";
-const npcUrl = 'https://sutenquestapi.azurewebsites.net/npc'
+const npcUrl = "https://sutenquestapi.azurewebsites.net/npc"
 
 
 const gameCanvas = new UICanvas();
@@ -84,7 +84,7 @@ function registerPlayer () {
           player.basedamage = json.basedamage
         }
       } catch (error) {
-        log("player search by ether address failed");
+        log("Player search by ether address failed ", error);
       }
     } catch (error) {
       log(error.toString());
@@ -131,7 +131,7 @@ function loadMobs() {
         }
         
       } catch (error) {
-        log("npc search failed")
+        log("npc search failed: ", error)
       }
   })
 

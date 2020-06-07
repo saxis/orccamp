@@ -92,18 +92,27 @@ export class CombatLog {
     public clearlog() {
       log('in clearlog')
       this._displayarray = []
-      this._combatlog0 = ""
-      this._combatlog1 = ""
-      this._combatlog2 = ""
-      this._combatlog3 = ""
-      this._combatlog4 = ""
+      this._combatlog0.value = ""
+      this._combatlog1.value = ""
+      this._combatlog2.value = ""
+      this._combatlog3.value = ""
+      this._combatlog4.value = ""
     }
   
-    // public show() {
-    //   this._combatlog.visible = true;
-    // }
+    public show() {
+      this._combatlog0.visible = true;
+      this._combatlog1.visible = true;
+      this._combatlog2.visible = true;
+      this._combatlog3.visible = true;
+      this._combatlog4.visible = true;
+    }
   
-    // public hide() {
-    //   this._combatlog.visible = false;
-    // }
+    public hide() {
+      log('hiding the combatlogs')
+      this._combatlog0.visible = false;
+      this._combatlog1.visible = false;
+      this._combatlog2.visible = false;
+      this._combatlog3.visible = false;
+      this._combatlog4.visible = false;
+    }
   }

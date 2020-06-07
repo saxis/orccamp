@@ -96,6 +96,7 @@ export class OrcBattle {
         log(`You have reached a new level. You are now level ${this._player.level}`)
         this._combatLog.text = `You have reached a new level! You are now level ${this._player.level}`
         this._player.levelup = false;
+        this._combatLog.clearlog()
        }
       //let path = this._npc.getComponent(DerpData); 
       let dist = distance(transform.position, camera.position);
@@ -250,7 +251,9 @@ export class OrcBattle {
                 this._orcGruntHpBar.hide()
                 this._npc.hidehpbar()
 
-                this._combatLog.clearlog();
+                this._combatLog.hide()
+
+                //this._combatLog.clearlog();
               }
               this._npc.addComponentOrReplace(new SecondaryTimeOut(this._punchpause));
             }
@@ -362,6 +365,7 @@ export class OrcBattle {
                  }
              )
            )  
+           this._combatLog.show()
           }
       }
     }
