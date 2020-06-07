@@ -92,6 +92,11 @@ export class OrcBattle {
 
     update(dt: number) {
       let transform = this._npc.getComponent(Transform);
+      if(this._player.levelup) {
+        log(`You have reached a new level. You are now level ${this._player.level}`)
+        this._combatLog.text = `You have reached a new level! You are now level ${this._player.level}`
+        this._player.levelup = false;
+       }
       //let path = this._npc.getComponent(DerpData); 
       let dist = distance(transform.position, camera.position);
       if (dist < 8) {
@@ -160,9 +165,12 @@ export class OrcBattle {
               soundbox4.play()
               let nowloc = [transform.position.x,transform.position.y,transform.position.z]
               let nowrot = [transform.rotation.x, transform.rotation.y, transform.rotation.z]
-              this._npc.takedamage(1, nowloc, nowrot)
-              //log(`You hit ${this._npc.name} for 1 point of damage`)
-              this._combatLog.text = `You hit ${this._npc.name} for 1 point of damage`
+              if(this._player.basedamage === undefined) {
+                this._player.basedamage = 1
+              }
+              this._npc.takedamage(this._player.basedamage, nowloc, nowrot)
+              log(`You hit ${this._npc.name} for ${this._player.basedamage} point of damage`)
+              this._combatLog.text = `You hit ${this._npc.name} for ${this._player.basedamage} point of damage`
 
               this._clicked = false;
 
@@ -220,11 +228,16 @@ export class OrcBattle {
 
                 killbox.play()
 
-                let leveledup = this._player.achievementcheck(20,this._player.level)
-                if(leveledup) {
-                  //log(`You have reached a new level. You are now level ${this._player.level}`)
-                  this._combatLog.text = `You have reached a new level. You are now level ${this._player.level}`
+                if(this._player.level === undefined) {
+                  this._player.level = 1
                 }
+
+                this._player.achievementcheck(20,this._player.level)
+                // log(`In orcbattle leveledup is now ${leveledup}`)
+                // if(leveledup) {
+                //   log(`You have reached a new level. You are now level ${this._player.level}`)
+                //   this._combatLog.text = `You have reached a new level! You are now level ${this._player.level}`
+                // }
 
                 if(Math.round(Math.random() * 1)){
                   this._death.play()
@@ -236,6 +249,8 @@ export class OrcBattle {
 
                 this._orcGruntHpBar.hide()
                 this._npc.hidehpbar()
+
+                this._combatLog.clearlog();
               }
               this._npc.addComponentOrReplace(new SecondaryTimeOut(this._punchpause));
             }
@@ -350,6 +365,10 @@ export class OrcBattle {
           }
       }
     }
+  }
+
+  function levelup() {
+    this._combatLog.text = `You have reached a new level! You are now level ${this._player.level}`
   }
 
   function distance(pos1: Vector3, pos2: Vector3): number {

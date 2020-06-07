@@ -1,9 +1,11 @@
 import resources from "../resources";
 
 export class Player {
+  private _leveledup: boolean;
   private _address: string;
   private _hp: number;
   private _level: number;
+  private _basedamage: number;
   private _maxhp: number;
   private _startinghp: number;
   private _inbatttle: boolean;
@@ -14,6 +16,7 @@ export class Player {
   //private aggUrl = 'http://127.0.0.1:8080/aggro'
   private aggUrl = 'https://sutenquestapi.azurewebsites.net/aggro'
   private levelUrl = 'https://sutenquestapi.azurewebsites.net/levels'
+  //private levelUrl = 'http://127.0.0.1:8080/levels'
 
   constructor(address: string, startingHp: number, canvas) {
     this._address = address;
@@ -38,6 +41,7 @@ export class Player {
     this.healthBar.fontWeight = "bold";
     this.healthBar.isPointerBlocker = false;
     this.healthBar.visible = false;
+    this._leveledup = false;
   }
 
   get maxhp() {
@@ -57,6 +61,24 @@ export class Player {
   set level(val:number) {
     if (val > 0) {
       this._level = val;
+    }
+  }
+
+  get levelup() {
+    return this._leveledup;
+  }
+
+  set levelup(val:boolean) {
+    this._leveledup = val;
+  }
+
+  get basedamage() {
+    return this._basedamage;
+  }
+
+  set basedamage(val:number) {
+    if(val > -1) {
+      this._basedamage = val
     }
   }
 
@@ -101,7 +123,9 @@ export class Player {
 
   achievementcheck(xp: number, currentlevel: number) {
     let url = this.levelUrl + '/' + this.address
-    let leveledup = false;
+    //let leveledup = false;
+
+    //log(`achievement check top current level is: ${currentlevel} leveledup ${leveledup} `)
 
     executeTask(async () => {
       const hpo = {
@@ -117,19 +141,23 @@ export class Player {
       };
 
       try {
-        fetch(url, options)
+        await fetch(url, options)
         .then((res) => res.json())
         .then((res) => {
+          log('achievement check res back from API ', res)
           if(res.level > currentlevel) {
-            leveledup = true
+            log('level from api ', res.level)
+            this.level = res.level
+            this.levelup = true
           }
+          log('setting new basedamage to ', res.basedamage)
+          this.basedamage = res.basedamage
         })
       } catch(error) {
         log ('failed to update ', error)
       }
     })
-
-    return leveledup
+    
   }
 
   updateaggro(action:string,mobid: string) {

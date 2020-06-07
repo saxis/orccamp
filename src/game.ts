@@ -56,7 +56,8 @@ function registerPlayer () {
             percentage: 100,
             name: playerName,
             level:1,
-            currentxp:0
+            currentxp:0,
+            basedamage:1
           };
   
           // request options
@@ -74,14 +75,16 @@ function registerPlayer () {
             .then((res) => res.json())
             .then((res) => {
               player.level = 1
+              player.basedamage = 1
               log(res)
             })
         } else {
           log('found player ', json)
           player.level = json.level
+          player.basedamage = json.basedamage
         }
       } catch (error) {
-        log("player search by ether addresss failed");
+        log("player search by ether address failed");
       }
     } catch (error) {
       log(error.toString());
