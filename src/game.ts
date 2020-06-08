@@ -17,24 +17,10 @@ const apiUrl = "https://sutenquestapi.azurewebsites.net/player"
 //const npcUrl = "http://localhost:8080/npc";
 const npcUrl = "https://sutenquestapi.azurewebsites.net/npc"
 
-
 const gameCanvas = new UICanvas();
-//let player;
 let lowerCaseAddress;
 let player = new Player(lowerCaseAddress, 40, gameCanvas);
 
-const rect = new UIContainerRect(gameCanvas);
-rect.width = "13.75%";
-rect.height = "6.25%";
-rect.vAlign = "center";
-rect.hAlign = "right";
-rect.positionY = 180;
-rect.color = Color4.Gray();
-rect.opacity = 0.7;
-rect.visible = true;
-
-player.showhpbar();
- 
 function registerPlayer () {
   executeTask(async () => {
     try {
@@ -44,6 +30,7 @@ function registerPlayer () {
       lowerCaseAddress = address.toLowerCase();
       let playerName = userdata.displayName
       player.address = address
+      player.name = playerName
   
       try {
         let response = await fetch(apiUrl + "/" + lowerCaseAddress);
@@ -82,6 +69,7 @@ function registerPlayer () {
           log('found player ', json)
           player.level = json.level
           player.basedamage = json.basedamage
+          player.resethealthBar(gameCanvas)
         }
       } catch (error) {
         log("Player search by ether address failed ", error);
@@ -104,6 +92,7 @@ function loadMobs() {
         let json = await response.json();
         try {
           json.forEach(element => {
+            log(element)
             let mob = new Orc(
               element.id,
               new AudioClip(element.sound),
@@ -113,6 +102,8 @@ function loadMobs() {
               Quaternion.Euler(element.rot[0],element.rot[1],element.rot[2]),
               gameCanvas
             )
+            log(mob)
+            log(player)
             engine.addSystem(
               new OrcBattle(
                 gameCanvas,
@@ -127,11 +118,11 @@ function loadMobs() {
             mob.name = element.name
           });
         } catch(error) {
-          throw Error("Unable to loop through json array")
+          throw Error(`Unable to loop through json array ${error}`)
         }
-        
-      } catch (error) {
+      } catch(error) {
         log("npc search failed: ", error)
+        //log(error.toString())
       }
   })
 

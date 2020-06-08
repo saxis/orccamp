@@ -1,5 +1,6 @@
 export default {
     sounds: {
+        levelup: new AudioClip("sounds/levelup.mp3"),
         goblinHit: new AudioClip("sounds/goblin_hit.mp3"),
         punch: new AudioClip("sounds/punch.mp3"),
         playerHit: new AudioClip("sounds/player_hit.mp3"),

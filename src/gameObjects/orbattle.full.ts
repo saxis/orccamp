@@ -4,12 +4,14 @@ import { SecondaryTimeOut } from "../components/secondaryTimeOut"
 import { SoundBox } from "../components/soundbox";
 import resources from "../resources";
 import { Player } from "./player";
+//import { PeasantDialog, SecondDialog } from "../ui/index";
 import { Orc } from "./orc";
 import { HpCounter } from "./hpCounter";
 import { LootWindow } from "./lootWindow"
 import { SpawnTimeOut } from "../components/spawnTimer";
 import { CombatLog } from "./combatLog";
 
+//const soundbox2 = new SoundBox(new Transform({position: new Vector3(7,0,8)}), resources.sounds.evillaugh)
 const soundbox3 = new SoundBox(new Transform({position: new Vector3(7, 0, 8) }), resources.sounds.playerHit2)
 const soundbox4 = new SoundBox(new Transform({position: new Vector3(7,0,8)}), resources.sounds.playerHit)
 const killbox = new SoundBox(new Transform({position: new Vector3(7,0,8)}), resources.sounds.killping)
@@ -22,6 +24,7 @@ export class OrcBattle {
     private _npc: Orc
     private _startPos: Vector3;
     private _startRot: Quaternion;
+    //private _turntime: number;
     private _walk: AnimationState;
     private _turn: AnimationState;
     private _fight: AnimationState;
@@ -34,7 +37,10 @@ export class OrcBattle {
     private _clicked = false;
     private _battlepause: number;
     private dead = false;
+    //private _startfight: boolean = false;
+    //private _dialog: PeasantDialog;
     private _punchpause: number = 2
+    //private _pacified: boolean = false;
     private _orcGruntHpBar: HpCounter;
     private _playerHpBar: HpCounter;
     private _lootWindow: LootWindow;
@@ -60,6 +66,7 @@ export class OrcBattle {
         this._clicked = clicked;
         this._battlepause = battlepause;
         this.canvas = canvas;
+        //this._dialog = dialog
         this._orcGruntHpBar = new HpCounter(canvas,resources.textures.orcGruntHpBar,'npc')
         this._playerHpBar = new HpCounter(canvas,resources.textures.playerCounter,'player')
         this._lootWindow = new LootWindow(canvas, resources.textures.lootWindow)
@@ -92,17 +99,19 @@ export class OrcBattle {
       if(this._player.levelup) {
         levelupbox.play()
         levelupbox.play()
+        //log(`You have reached a new level. You are now level ${this._player.level}`)
         this._combatLog.text = `You have reached a new level! You are now level ${this._player.level}`
         this._player.levelup = false;
         this._combatLog.clearlog()
        }
+      //let path = this._npc.getComponent(DerpData); 
       let dist = distance(transform.position, camera.position);
       if (dist < 8) {
         let playerPos = new Vector3(camera.position.x, 0, camera.position.z);
         transform.lookAt(playerPos);
           if(this.dead == false && this._npc.battle == false) {
             this._npc.battle = true;
-            this._player.updateaggro("add", this._npc.id)
+            this._player.updateaggro("add",this._npc.id)
           }
           
           if (!this.dead && !this._clicked) {
@@ -124,6 +133,7 @@ export class OrcBattle {
 
               soundbox3.play()
               this._player.damage(1)
+              //log(`An ${this._npc.name} hits YOU for 1 point of damage`)
               this._combatLog.text = `An ${this._npc.name} hits YOU for 1 point of damage`
 
               if(this._player.hp == 0) {
@@ -132,6 +142,7 @@ export class OrcBattle {
                 this._kick.stop()
                 this.dead = true;
                 this._npc.battle = false;
+                //this._dialog.npcWon()
                 this._npc.addComponentOrReplace(
                   new Transform({
                     position: this._startPos,
@@ -143,7 +154,9 @@ export class OrcBattle {
               this._npc.addComponentOrReplace(new TimeOut(this._battlepause)); 
             } 
           } else if (!this.dead && this._clicked) {
+            //log('in the block not dead and clicked')
             if(!this._npc.hasComponent(SecondaryTimeOut)) {
+             // log('in the block not dead, clicked, no secondary timeout ')
               this._walk.playing = false;
               this._turn.playing = false;
               this._fight.playing = false;
@@ -162,8 +175,8 @@ export class OrcBattle {
               if(this._player.basedamage === undefined) {
                 this._player.basedamage = 1
               }
-
               this._npc.takedamage(this._player.basedamage, nowloc, nowrot)
+              log(`You hit ${this._npc.name} for ${this._player.basedamage} point of damage`)
               this._combatLog.text = `You hit ${this._npc.name} for ${this._player.basedamage} point of damage`
 
               this._clicked = false;
@@ -201,6 +214,7 @@ export class OrcBattle {
                 aggarray = this._player.aggro
                 if (aggarray != undefined && aggarray.length > 0) {
                   if(aggarray.indexOf(this._npc.id) > -1) {
+                    //log('removing from aggrolist: ', this._npc.id)
                     this._player.updateaggro("remove",this._npc.id)
                   }
                 }
@@ -214,7 +228,9 @@ export class OrcBattle {
                 this._death.play()
                 this._death.looping = false;
 
+                //log(`You have slain an ${this._npc.name}`)
                 this._combatLog.text = `You have slain an ${this._npc.name}` 
+                //log('You have gained experience!')
                 this._combatLog.text = 'You have gained experience!' 
 
                 killbox.play()
@@ -224,6 +240,11 @@ export class OrcBattle {
                 }
 
                 this._player.achievementcheck(20,this._player.level)
+                // log(`In orcbattle leveledup is now ${leveledup}`)
+                // if(leveledup) {
+                //   log(`You have reached a new level. You are now level ${this._player.level}`)
+                //   this._combatLog.text = `You have reached a new level! You are now level ${this._player.level}`
+                // }
 
                 if(Math.round(Math.random() * 1)){
                   this._death.play()
@@ -237,6 +258,8 @@ export class OrcBattle {
                 this._npc.hidehpbar()
 
                 this._combatLog.hide()
+
+                //this._combatLog.clearlog();
               }
               this._npc.addComponentOrReplace(new SecondaryTimeOut(this._punchpause));
             }
@@ -244,6 +267,7 @@ export class OrcBattle {
        
       } else if (dist < 20 && dist > 8) {
         
+        //log('less than 20, more than 8')
         if(!this.dead) {
             this._orcGruntHpBar.show()
             this._npc.showhpbar()
@@ -302,12 +326,15 @@ export class OrcBattle {
             aggarray = this._player.aggro
             if (aggarray != undefined && aggarray.length > 0) {
               if(aggarray.indexOf(this._npc.id) > -1) {
-                //this._player.updateaggro("remove",this._npc.id)
+                //log('removing from aggrolist: ', this._npc.id)
+                this._player.updateaggro("remove",this._npc.id)
+                //log('setting battle to false')
                 this._npc.battle = false;
               }
             } else if (aggarray != undefined && aggarray.length == 0) {
               if (!this._npc.hasComponent(TimeOut)) {
                 if(this._player.hp < this._player.maxhp) {
+                  //log(`player current hp ${this._player.hp} max hp: ${this._player.maxhp}`)
                   this._player.heal(1)
                   this._npc.addComponentOrReplace(new TimeOut(this._battlepause)); 
                 }
