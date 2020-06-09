@@ -1,4 +1,5 @@
 import resources from "../resources";
+import { NpcId } from "../components/npcId";
 
 export class Orc extends Entity {
   private _id: string;
@@ -46,6 +47,8 @@ export class Orc extends Entity {
     this._id = id;
     this._hp = startingHp;
     this._startinghp = startingHp;
+    this.addComponent(new NpcId())
+    this.getComponent(NpcId).id = this._id
     let npcAnimator = new Animator();
     this.addComponent(npcAnimator);
     this.walk = new AnimationState("walking");
@@ -210,6 +213,11 @@ export class Orc extends Entity {
     }
   }
 
+  setPosition(loc,rot) {
+    this.getComponentOrNull(Transform).position = loc
+    this.getComponentOrNull(Transform).rotation = rot
+  }
+
   loadloot() {
     this.loot.visible = true;
     this.loot2.visible = true;
@@ -269,6 +277,9 @@ export class Orc extends Entity {
   takedamage(amount:number, loc, rot) {
     let url = this.npcUrl + '/' + this._id
 
+    // log('sending loc to server: ', loc)
+    // log('sending rot to server: ', rot)
+
     executeTask(async () => {
       const hpo = {
         amount : -amount,
@@ -295,6 +306,27 @@ export class Orc extends Entity {
           })
       } catch(error) {
         log('failed to take npc damage ', error)
+      }
+    })
+  }
+
+  remove() {
+    let url = this.npcUrl + '/' + this._id
+
+    executeTask(async () => {
+      const options = {
+        method: "DELETE",
+      };
+
+      try {
+        fetch(url, options)
+          .then((res) => res)
+          // .then((res) => res.json())
+          // .then((res) => {
+          //   log('after delete ')
+          // })
+      } catch(error) {
+        log('failed to delete npc ', error)
       }
     })
   }

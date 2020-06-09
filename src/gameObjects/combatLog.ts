@@ -90,7 +90,7 @@ export class CombatLog {
     }
 
     public clearlog() {
-      log('in clearlog')
+      //log('in clearlog')
       this._displayarray = []
       this._combatlog0.value = ""
       this._combatlog1.value = ""
@@ -108,7 +108,7 @@ export class CombatLog {
     }
   
     public hide() {
-      log('hiding the combatlogs')
+      //log('hiding the combatlogs')
       this._combatlog0.visible = false;
       this._combatlog1.visible = false;
       this._combatlog2.visible = false;

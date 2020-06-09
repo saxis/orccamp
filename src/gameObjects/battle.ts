@@ -59,7 +59,7 @@ export class Battle {
                     this._npc.getComponent(OnPointerDown).showFeedback = false;
                     if(!this._npc.hasComponent(SecondaryTimeOut)) {
                       this._clicked = true;
-                      log('this._clicked ', this._clicked)
+                      //log('this._clicked ', this._clicked)
                     }
                   },{
                     button: ActionButton.PRIMARY,
@@ -71,12 +71,12 @@ export class Battle {
             this._startfight = true;
           }
           if (!this.dead && !this._clicked) {
-            log('in the block not dead and not clicked')
+            //log('in the block not dead and not clicked')
             if(!this._npc.hasComponent(SecondaryTimeOut) && this._npc.getComponent(OnPointerDown).showFeedback === false) {
               this._npc.getComponent(OnPointerDown).showFeedback = true;
             }
             if (!this._npc.hasComponent(TimeOut)) {
-              log('in the block not dead, not clicked, and no Timeout')
+              //log('in the block not dead, not clicked, and no Timeout')
               this._walk.playing = false;
               this._turn.playing = false;
               this._talk.playing = false;
@@ -94,9 +94,9 @@ export class Battle {
               this._npc.addComponentOrReplace(new TimeOut(this._battlepause)); 
             } 
           } else if (!this.dead && this._clicked) {
-            log('in the block not dead and clicked')
+            //log('in the block not dead and clicked')
             if(!this._npc.hasComponent(SecondaryTimeOut)) {
-              log('in the block not dead, clicked, no secondary timeout ')
+              //log('in the block not dead, clicked, no secondary timeout ')
               this._walk.playing = false;
               this._turn.playing = false;
               this._talk.playing = false;

@@ -51,8 +51,8 @@ export class Player {
   }
 
   resethealthBar(canvas) {
-    log('name is currently ', this.name)
-    log('level is currently ', this.level)
+    //log('name is currently ', this.name)
+    //log('level is currently ', this.level)
     this.healthBar = new UIText(canvas);
     this.healthBar.hAlign = "right";
     this.healthBar.vAlign = "center";
@@ -230,14 +230,14 @@ export class Player {
         await fetch(url, options)
         .then((res) => res.json())
         .then((res) => {
-          log('achievement check res back from API ', res)
+          //log('achievement check res back from API ', res)
           if(res.level > currentlevel) {
-            log('level from api ', res.level)
+            //log('level from api ', res.level)
             this.level = res.level
             this.levelup = true
             this.playerLevel.value = res.level
           }
-          log('setting new basedamage to ', res.basedamage)
+          //log('setting new basedamage to ', res.basedamage)
           this.basedamage = res.basedamage
         })
       } catch(error) {

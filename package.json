@@ -1,7 +1,7 @@
 {
-  "name": "dcl-project",
-  "version": "1.0.0",
-  "description": "Suten - Merchant Hut",
+  "name": "sutenquest-orc-camp",
+  "version": "0.0.6",
+  "description": "SutenQuest - Orc Camp",
   "scripts": {
     "start": "dcl start",
     "build": "build-ecs",

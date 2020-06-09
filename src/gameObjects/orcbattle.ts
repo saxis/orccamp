@@ -16,7 +16,7 @@ const killbox = new SoundBox(new Transform({position: new Vector3(7,0,8)}), reso
 const orclaugh = new SoundBox(new Transform({position: new Vector3(7,0,8)}), resources.sounds.orclaugh)
 const levelupbox = new SoundBox(new Transform({position: new Vector3(7,0,8)}), resources.sounds.levelup)
 
-
+@Component("orcBattle")
 export class OrcBattle {
     private _player: Player;
     private _npc: Orc
@@ -85,6 +85,10 @@ export class OrcBattle {
                }
            )
          )
+    }
+
+    orcid() {
+      return this._npc.id
     }
 
     update(dt: number) {
@@ -163,6 +167,8 @@ export class OrcBattle {
                 this._player.basedamage = 1
               }
 
+              // log(`startPos ${this._startPos} and startRot ${this._startRot}`)
+              // log(`sending Position ${nowloc} and Rotation ${nowrot} to npc.takedamage`)
               this._npc.takedamage(this._player.basedamage, nowloc, nowrot)
               this._combatLog.text = `You hit ${this._npc.name} for ${this._player.basedamage} point of damage`
 
@@ -189,6 +195,8 @@ export class OrcBattle {
                         this._lootWindow.hide()
                         this._npc.hideloot()
                         close.visible = false;
+                        this._npc.remove()
+                        engine.removeEntity(this._npc)
                       })
                      },{
                        button: ActionButton.PRIMARY,
@@ -302,7 +310,7 @@ export class OrcBattle {
             aggarray = this._player.aggro
             if (aggarray != undefined && aggarray.length > 0) {
               if(aggarray.indexOf(this._npc.id) > -1) {
-                //this._player.updateaggro("remove",this._npc.id)
+                this._player.updateaggro("remove",this._npc.id)
                 this._npc.battle = false;
               }
             } else if (aggarray != undefined && aggarray.length == 0) {
